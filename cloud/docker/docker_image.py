@@ -195,7 +195,7 @@ EXAMPLES = '''
 
 RETURN = '''
 image:
-    description: Image inspection results for the affected image. 
+    description: Image inspection results for the affected image.
     returned: success
     type: complex
     sample: {}
@@ -223,6 +223,7 @@ class ImageManager(DockerBaseClass):
         self.check_mode = self.client.check_mode
 
         self.archive_path = parameters.get('archive_path')
+        self.build_args = parameters.get('build_args')
         self.container_limits = parameters.get('container_limits')
         self.dockerfile = parameters.get('dockerfile')
         self.force = parameters.get('force')
@@ -236,7 +237,7 @@ class ImageManager(DockerBaseClass):
         self.state = parameters.get('state')
         self.tag = parameters.get('tag')
         self.http_timeout = parameters.get('http_timeout')
-        self.debug = parameters.get('debug') 
+        self.debug = parameters.get('debug')
         self.push = False
 
         if self.state in ['present', 'build']:
@@ -452,6 +453,8 @@ class ImageManager(DockerBaseClass):
         )
         if self.tag:
             params['tag'] = "%s:%s" % (self.name, self.tag)
+        if self.build_args:
+            params['buildargs'] = self.build_args
         if self.container_limits:
             params['container_limits'] = self.container_limits
         for line in self.client.build(**params):
@@ -496,6 +499,7 @@ class ImageManager(DockerBaseClass):
 def main():
     argument_spec = dict(
         archive_path=dict(type='path'),
+        build_args=dict(type='dict'),
         container_limits=dict(type='dict'),
         dockerfile=dict(type='str'),
         force=dict(type='bool', default=False),
